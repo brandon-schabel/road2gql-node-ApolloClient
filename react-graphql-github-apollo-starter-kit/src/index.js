@@ -3,7 +3,7 @@ import ReactDOM from "react-dom"
 import { ApolloClient } from "apollo-client"
 import { HttpLink } from "apollo-link-http"
 import { InMemoryCache } from "apollo-cache-inmemory"
-import { ApolloProvider } from "react-apollo" // what actually connects react to apollo
+import { ApolloProvider } from 'react-apollo'; // what actually connects react to apollo
 
 import registerServiceWorker from "./registerServiceWorker"
 import App from "./App"
