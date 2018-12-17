@@ -1,7 +1,10 @@
 import React from "react"
 import gql from "graphql-tag"
 import { Query } from "react-apollo"
+import RepositoryList, { REPOSITORY_FRAGMENT } from '../Repository'
 import Loading from '../Loading'
+import ErrorMessage from '../Error';
+import { graphql } from 'react-apollo'
 
 const GET_CURRENT_USER = gql`
   {
@@ -12,22 +15,55 @@ const GET_CURRENT_USER = gql`
   }
 `
 
-const Profile = () => (
-  <Query query={GET_CURRENT_USER}>
-    {({ data }) => {
-      const { viewer, loading} = data
+const GET_REPOSITORIES_OF_CURRENT_USER = gql`
+  {
+    viewer {
+      repositories( first:5
+                    orderBy: {direction: DESC, field: STARGAZERS}
+                    after: $cursor
+       ) {
+         edges {
+           node {
+             ...repository  
+           }
+         }
+         pageInfo {
+           endCursor
+           hasNextPage
+         }
+       }
+    }
+  }
 
-      if (loading || !viewer) {
-        return <Loading></Loading>
+  ${REPOSITORY_FRAGMENT}
+`
+// where ...repository we are inserting the query fragment and it is taken form
+// inserting ${REPOSITORY_FRAGMENT} at the bottom 
+
+const Profile = () => (
+  <Query query={GET_REPOSITORIES_OF_CURRENT_USER}
+         notifyOnNetworkStatusChange={true}
+  >
+    {({ data, loading, error, fetchMore}) => {
+
+      if(error) {
+        return <ErrorMessage error={error} />;
+      }
+
+      const { viewer } = data
+
+      if (loading && !viewer) {
+        return <Loading />
       }
 
       return (
-        <div>
-          {viewer.name} {viewer.login}
-        </div>
+      <RepositoryList 
+      loading={loading}
+      repositories={viewer.repositories}
+      fetchMore={fetchMore}></RepositoryList>
       )
     }}
   </Query>
 )
 
-export default Profile
+export default graphql(GET_REPOSITORIES_OF_CURRENT_USER)(Profile);
