@@ -55,4 +55,3 @@ client.mutate({
     repositoryId: "MDEwOlJlcG9zaXRvcnk2MzM1MjkwNw=="
   }
 }).then(console.log)
-
